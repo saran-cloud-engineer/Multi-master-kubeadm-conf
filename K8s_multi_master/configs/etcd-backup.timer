@@ -1,0 +1,18 @@
+# /etc/systemd/system/etcd-backup.timer
+#
+# Fires etcd-backup.service once daily at 01:00, staggered by up to 10
+# minutes across nodes so all 3 masters don't hit disk/network at the exact
+# same second. Persistent=true means a missed run (node was off/rebooting
+# at 01:00) fires shortly after the next boot instead of being skipped
+# until the following day — important for backup reliability.
+
+[Unit]
+Description=Daily etcd snapshot backup
+
+[Timer]
+OnCalendar=*-*-* 01:00:00
+RandomizedDelaySec=600
+Persistent=true
+
+[Install]
+WantedBy=timers.target

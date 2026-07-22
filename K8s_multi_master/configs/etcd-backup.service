@@ -1,0 +1,17 @@
+# /etc/systemd/system/etcd-backup.service
+#
+# One-shot unit that runs etcd-backup.sh. Triggered by etcd-backup.timer —
+# do not `systemctl enable` this .service directly, enable the .timer instead.
+
+[Unit]
+Description=One-shot etcd snapshot backup for this control-plane node
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+# Runs as root by default (required to read /etc/kubernetes/pki/etcd/*).
+ExecStart=/usr/local/sbin/etcd-backup.sh
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7

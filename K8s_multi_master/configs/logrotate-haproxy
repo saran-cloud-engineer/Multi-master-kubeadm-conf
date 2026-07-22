@@ -1,0 +1,34 @@
+# /etc/logrotate.d/haproxy-k8s-api
+#
+# Rotates the dedicated HAProxy log file created by rsyslog-haproxy.conf
+# (/var/log/haproxy-k8s-api.log). Without this, that file grows forever:
+# `option tcplog` logs one line per connection, and chk_haproxy.sh's
+# healthcheck can log a failure line every 2s during an extended outage.
+#
+# `create 0640 syslog adm` assumes Debian/Ubuntu, where rsyslog runs as
+# user "syslog" in group "adm". On RHEL-family systems, rsyslog typically
+# runs as root — change to `create 0640 root root` there instead.
+
+/var/log/haproxy-k8s-api.log {
+    daily
+    rotate 14
+    # Belt-and-suspenders: `rotate 14` only guarantees "14 days" if exactly
+    # one rotation happens per day. If the logrotate cron/timer is ever
+    # disabled or missed for a stretch, `maxage` independently caps files
+    # by actual age instead of just by count.
+    maxage 14
+    missingok
+    notifempty
+    compress
+    delaycompress
+    dateext
+    create 0640 syslog adm
+    # Required on newer logrotate versions, or rotation fails with "parent
+    # directory has insecure permissions" — this explicitly declares which
+    # identity logrotate should trust for this file, matching the `create`
+    # line above, rather than trying to infer it from directory ownership.
+    su syslog adm
+    postrotate
+        /usr/lib/rsyslog/rsyslog-rotate 2>/dev/null || systemctl kill -s HUP rsyslog.service 2>/dev/null || true
+    endscript
+}

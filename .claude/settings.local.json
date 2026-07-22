@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mv readme.md 00-server-requirements.md)",
+      "Bash(mv plan.md 01-architecture-plan.md)",
+      "Bash(mv technical-implementation.md 02-technical-implementation-guide.md)",
+      "Bash(mv master-node-setup.md 03-master-node-setup.md)",
+      "Bash(mv worker-node-setup.md 04-worker-node-setup.md)"
+    ]
+  }
+}
